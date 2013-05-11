@@ -16,8 +16,8 @@
 #user specific settings:
 #where to find the IDE
 ADIR:=$(HOME)/code/thirdparty/arduino/arduino-1.5.2/hardware
-#which serial port to use
-PORT:=/dev/ttyACM0
+#which serial port to use (add a file with SUBSYSTEMS=="usb", ATTRS{product}=="Arduino Due Prog. Port", ATTRS{idProduct}=="003d", ATTRS{idVendor}=="2341", SYMLINK+="arduino_due" in /etc/udev/rules.d/ to get this working)
+PORT:=/dev/arduino_due
 #if we want to verify the bossac upload, define this to -v
 VERIFY:=
 
@@ -81,7 +81,7 @@ compile: $(TMPDIR)/$(PROJNAME).elf
 # arg 3= XX if c++, empty if c
 define OBJ_template
 $(2): $(1)
-	$(C$(3)) -c $(C$(3)FLAGS) $(DEFINES) $(INCLUDES) $(1) -o $(2)
+	$(C$(3)) -MD -c $(C$(3)FLAGS) $(DEFINES) $(INCLUDES) $(1) -o $(2)
 endef
 #now invoke the template both for c++ sources
 $(foreach src,$(CORESRCXX), $(eval $(call OBJ_template,$(src),$(addsuffix .o,$(addprefix $(TMPDIR)/core/,$(notdir $(src)))),XX) ) )
@@ -108,6 +108,9 @@ $(NEWMAINFILE): $(PROJNAME).ino
 	cat $(ADIR)/arduino/sam/cores/arduino/main.cpp > $(NEWMAINFILE)
 	cat $(PROJNAME).ino >> $(NEWMAINFILE)
 	echo 'extern "C" void __cxa_pure_virtual() {while (true);}' >> $(NEWMAINFILE)
+
+#include the dependencies for our own files
+-include $(MYOBJFILES:.o=.d)
 
 #create the core library from the core objects. Do this EXACTLY as the
 #arduino IDE does it, seems *really* picky about this.
