@@ -7,11 +7,14 @@
 # Type make upload to compile and upload.
 # Type make monitor to watch the serial port with gnu screen.
 #
-# TODO: dependency checks for the local files.
+# TODO: split into user specific settings and the rest
 #
 # LICENSE: GPLv2 or later (at your option)
 #
+# This file can be found at https://github.com/pauldreik/arduino-due-makefile
+#
 # By Paul Dreik 20130503 http://www.pauldreik.se/
+
 
 #user specific settings:
 #where to find the IDE
