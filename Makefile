@@ -18,9 +18,10 @@
 
 #user specific settings:
 #where to find the IDE
-ADIR:=$(HOME)/code/thirdparty/arduino/arduino-1.5.2/hardware
+ADIR:=$(HOME)/Programs/arduino-1.5.2/hardware
 #which serial port to use (add a file with SUBSYSTEMS=="usb", ATTRS{product}=="Arduino Due Prog. Port", ATTRS{idProduct}=="003d", ATTRS{idVendor}=="2341", SYMLINK+="arduino_due" in /etc/udev/rules.d/ to get this working)
-PORT:=/dev/arduino_due
+#PORT:=/dev/arduino_due
+PORT:=/dev/ttyACM0
 #if we want to verify the bossac upload, define this to -v
 VERIFY:=
 
@@ -35,12 +36,14 @@ LIBSAM:=arduino/sam/system/libsam
 TMPDIR:=$(PWD)/build
 AR:=$(ADIR)/tools/g++_arm_none_eabi/bin/arm-none-eabi-ar 
 
-
 #all these values are hard coded and should maybe be configured somehow else,
 #like olikraus does in his makefile.
 DEFINES:=-Dprintf=iprintf -DF_CPU=84000000L -DARDUINO=152 -D__SAM3X8E__ -DUSB_PID=0x003e -DUSB_VID=0x2341 -DUSBCON
+MY_LIBS:=$(ADIR)/arduino/sam/libraries/SPI $(ADIR)/arduino/sam/libraries/DueTimer
 
-INCLUDES:=-I$(ADIR)/$(LIBSAM) -I$(ADIR)/$(CMSIS)/CMSIS/Include/ -I$(ADIR)/$(CMSIS)/Device/ATMEL/ -I$(ADIR)/$(SAM)/cores/arduino -I$(ADIR)/$(SAM)/variants/arduino_due_x
+INCLUDES:=-I$(ADIR)/$(LIBSAM) -I$(ADIR)/$(CMSIS)/CMSIS/Include/ -I$(ADIR)/$(CMSIS)/Device/ATMEL/
+INCLUDES += -I$(ADIR)/$(SAM)/cores/arduino -I$(ADIR)/$(SAM)/variants/arduino_due_x
+INCLUDES += $(patsubst %,-I%,$(MY_LIBS))
 
 #also include the current dir for convenience
 INCLUDES += -I.
@@ -58,7 +61,7 @@ PROJNAME:=$(shell basename *.ino .ino)
 NEWMAINFILE:=$(TMPDIR)/$(PROJNAME).ino.cpp
 
 #our own sourcefiles is the (converted) ino file and any local cpp files
-MYSRCFILES:=$(NEWMAINFILE) $(shell ls *.cpp 2>/dev/null)
+MYSRCFILES:=$(NEWMAINFILE) $(shell ls *.cpp 2>/dev/null) $(wildcard $(patsubst %,%/*.c,$(MY_LIBS))) $(wildcard $(patsubst %,%/*.cpp,$(MY_LIBS)))
 MYOBJFILES:=$(addsuffix .o,$(addprefix $(TMPDIR)/,$(notdir $(MYSRCFILES))))
 
 #These source files are the ones forming core.a
