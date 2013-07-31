@@ -157,6 +157,7 @@ $(TMPDIR)/$(PROJNAME).bin: $(TMPDIR)/$(PROJNAME).elf
 #upload to the arduino by first resetting it (stty) and the running bossac
 upload: $(TMPDIR)/$(PROJNAME).bin
 	stty -F $(PORT) cs8 1200 hupcl
+	sleep 1
 	$(ADIR)/tools/bossac -U false -e -w $(VERIFY) -b $(TMPDIR)/$(PROJNAME).bin -R
 
 #to view the serial port with screen.
