@@ -11,5 +11,7 @@ should be relatively easy to fix.
 
 See the instructions in the top of the Makefile for how to use it.
 
+The makefile has been updated to work with arduino IDE 1.6.11 as of 20160924
+
 Feedback is welcome!
 
